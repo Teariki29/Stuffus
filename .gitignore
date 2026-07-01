@@ -1,0 +1,24 @@
+# Python
+backend/.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# Data: raw crawl cache + generated db (regenerate with ingest/normalize)
+backend/data/raw/
+backend/data/items.sqlite
+backend/data/items.sqlite-*
+
+# Node / frontend
+frontend/node_modules/
+frontend/dist/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Claude's stuff
+.claude/

@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/api.ts","./src/constants.ts","./src/icons.tsx","./src/main.tsx","./src/share.ts","./src/types.ts","./src/vite-env.d.ts","./src/components/buildresult.tsx","./src/components/constraintbuilder.tsx","./src/components/stufftypeselector.tsx"],"version":"5.9.3"}
