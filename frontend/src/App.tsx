@@ -6,6 +6,7 @@ import type {
   DamageProfile,
   Element,
   OptimizeRequest,
+  ResultItem,
   StuffType,
 } from "./types";
 import { StuffTypeSelector } from "./components/StuffTypeSelector";
@@ -14,6 +15,13 @@ import { BuildResult } from "./components/BuildResult";
 import { buildShareUrl, readBuildFromHash } from "./share";
 
 const shared = readBuildFromHash();
+
+interface BannedItem {
+  id: number;
+  name: string;
+  slot: string;
+  img_url?: string | null;
+}
 
 export default function App() {
   const [stuffType, setStuffType] = useState<StuffType>(shared?.stuff_type ?? "force");
@@ -33,10 +41,24 @@ export default function App() {
       { dim: "pm", op: ">=", value: 6 },
     ],
   );
+  const [bannedItems, setBannedItems] = useState<BannedItem[]>(
+    (shared?.banned_ids ?? []).map((id) => ({ id, name: `Item #${id}`, slot: "" })),
+  );
   const [result, setResult] = useState<BuildResponse | null>(null);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const buildReq = (banned: BannedItem[] = bannedItems): OptimizeRequest => ({
+    stuff_type: stuffType,
+    level,
+    elements,
+    damage_profile: damageProfile,
+    constraints,
+    obtainable_only: obtainableOnly,
+    banned_ids: banned.map((b) => b.id),
+    time_limit: 20,
+  });
 
   const runWith = async (req: OptimizeRequest) => {
     setLoading(true);
@@ -54,16 +76,21 @@ export default function App() {
     }
   };
 
-  const run = () =>
-    runWith({
-      stuff_type: stuffType,
-      level,
-      elements,
-      damage_profile: damageProfile,
-      constraints,
-      obtainable_only: obtainableOnly,
-      time_limit: 20,
-    });
+  const run = () => runWith(buildReq());
+
+  // ban an item and immediately re-optimise without it
+  const banItem = (item: ResultItem) => {
+    if (bannedItems.some((b) => b.id === item.id)) return;
+    const next = [
+      ...bannedItems,
+      { id: item.id, name: item.name, slot: item.slot, img_url: item.img_url },
+    ];
+    setBannedItems(next);
+    runWith(buildReq(next));
+  };
+
+  // re-integrate an item into the pool (relance manuelle via Optimiser)
+  const unbanItem = (id: number) => setBannedItems(bannedItems.filter((b) => b.id !== id));
 
   // auto-run when the page is opened from a shared link
   useEffect(() => {
@@ -103,6 +130,39 @@ export default function App() {
             {loading ? "Calcul en cours…" : "Optimiser"}
           </button>
           {error && <p className="error">{error}</p>}
+
+          {bannedItems.length > 0 && (
+            <section className="panel banned-panel">
+              <div className="panel-head">
+                <h2>Items bannis ({bannedItems.length})</h2>
+                <button className="btn-add" onClick={() => setBannedItems([])}>
+                  Tout réintégrer
+                </button>
+              </div>
+              <ul className="banned-list">
+                {bannedItems.map((b) => (
+                  <li key={b.id}>
+                    {b.img_url ? (
+                      <img src={b.img_url} alt="" loading="lazy" />
+                    ) : (
+                      <span className="banned-noimg" />
+                    )}
+                    <span className="banned-name" title={b.name}>
+                      {b.name}
+                    </span>
+                    <button
+                      className="btn-unban"
+                      title="Réintégrer au pool"
+                      onClick={() => unbanItem(b.id)}
+                    >
+                      ↩
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              <p className="muted">Réintègre un item puis relance « Optimiser ».</p>
+            </section>
+          )}
         </div>
 
         <main className="output">
@@ -112,7 +172,9 @@ export default function App() {
               <p>Résolution du modèle (CP-SAT)…</p>
             </div>
           )}
-          {!loading && result && <BuildResult result={result} shareUrl={shareUrl} />}
+          {!loading && result && (
+            <BuildResult result={result} shareUrl={shareUrl} onBan={banItem} />
+          )}
           {!loading && !result && (
             <div className="placeholder">
               <p>Choisissez un type de stuff, ajoutez vos contraintes, puis lancez l'optimisation.</p>

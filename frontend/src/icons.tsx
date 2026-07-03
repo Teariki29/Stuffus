@@ -31,6 +31,24 @@ const PATHS: Record<string, ReactElement> = {
   arrows: <path d="M12 2l4 4h-3v5h5V8l4 4-4 4v-3h-5v5h3l-4 4-4-4h3v-5H6v3l-4-4 4-4v3h5V6H8z" />,
   dot: <circle cx="12" cy="12" r="5" />,
   pods: <path d="M5 8h14l-1.2 12H6.2zM8 8V6a4 4 0 0 1 8 0v2h-2V6a2 2 0 0 0-4 0v2z" />,
+  // element / characteristic shapes
+  flame: (
+    <path d="M12 2c2.4 3.2 5 5.3 5 9.2A5 5 0 0 1 7 11.4c0-1 .4-2 1.2-2.8-.1 1.3.6 2.4 1.6 2.6C10.6 8.4 12 6 12 2z" />
+  ),
+  waterdrop: <path d="M12 3c3 4 6 7.2 6 10.4a6 6 0 0 1-12 0C6 10.2 9 7 12 3z" />,
+  wing: (
+    <path d="M21 4c-8 .6-13.5 4.8-16 12.4l1.3 1c1.2-3 3.2-5.2 6.1-6.4-2.3 1.8-3.9 4-4.8 6.9l1.3 1C15 16.4 19 11.6 21 4z" />
+  ),
+  gem: <path d="M7 3h10l4 6-9 12L3 9zM7 3l2 6h6l2-6M3 9h18" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />,
+  clover: (
+    <path d="M12 13c-1-2-2-3-4-3a3 3 0 1 0 0 6c0 2 1 3 4 3-1-2-1-3 0-6zm0 0c1-2 2-3 4-3a3 3 0 1 1 0 6c0 2-1 3-4 3 1-2 1-3 0-6z" />
+  ),
+  magnifier: (
+    <path d="M10.5 3a7.5 7.5 0 0 1 5.9 12.1l4.3 4.3-1.4 1.4-4.3-4.3A7.5 7.5 0 1 1 10.5 3zm0 2a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11z" />
+  ),
+  link: (
+    <path d="M9 7h2v2H9a3 3 0 0 0 0 6h2v2H9A5 5 0 0 1 9 7zm6 0h-2v2h2a3 3 0 0 1 0 6h-2v2h2a5 5 0 0 0 0-10zM8 11h8v2H8z" />
+  ),
 };
 
 // Real Dofus icons, if the user drops PNGs in src/assets/icons/. Auto-detected

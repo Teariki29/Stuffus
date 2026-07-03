@@ -18,6 +18,7 @@ export interface OptimizeRequest {
   tiebreak_weights?: Record<string, number>;
   allocate_points?: boolean;
   obtainable_only?: boolean;
+  banned_ids?: number[];
   time_limit?: number;
 }
 

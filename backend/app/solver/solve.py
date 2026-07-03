@@ -65,6 +65,9 @@ def solve(
     time_limit: float = 10.0,
     use_prefilter: bool = True,
 ) -> SolveResult:
+    if params.banned_ids:
+        banned = set(params.banned_ids)
+        items = [it for it in items if it.id not in banned]
     if params.obtainable_only:
         items = [it for it in items if it.obtainable]
     if use_prefilter:

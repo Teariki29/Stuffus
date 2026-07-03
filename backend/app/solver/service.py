@@ -46,6 +46,7 @@ def _params(req: OptimizeRequest) -> BuildParams:
         constraints=constraints,
         allocate_points=req.allocate_points,
         obtainable_only=req.obtainable_only,
+        banned_ids=list(req.banned_ids),
         tiebreak_weights=dict(req.tiebreak_weights),
     )
 

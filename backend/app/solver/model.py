@@ -42,6 +42,7 @@ class BuildParams:
     constraints: list[dict] = field(default_factory=list)  # {dim, op, value}
     allocate_points: bool = True
     obtainable_only: bool = True
+    banned_ids: list[int] = field(default_factory=list)
     tiebreak_weights: dict[str, int] = field(default_factory=dict)
 
 
@@ -115,32 +116,31 @@ class BuildModel:
             if it.set_id is not None and it.set_id in self.sets:
                 present.setdefault(it.set_id, []).append(it.id)
 
-        active_terms: list = []
+        count_terms: list = []
         for set_id, member_ids in present.items():
             n_members = len(member_ids)
             if n_members < 2:
                 continue  # a single owned piece can never trigger a set bonus
             sd = self.sets[set_id]
             relevant = any(d in needed for tier in sd.bonuses.values() for d in tier)
+            # model a set only if its stats matter, or if we need to count panoplie
+            # bonuses (then every set with >=2 possible pieces must be counted).
+            if not relevant and not count_panoplies:
+                continue
+
+            zk = {k: self.model.NewBoolVar(f"z_{set_id}_{k}") for k in range(n_members + 1)}
+            self.z[set_id] = zk
+            self.model.Add(sum(zk.values()) == 1)
             n_s = sum(self.x[i] for i in member_ids)
+            self.model.Add(n_s == sum(k * zk[k] for k in zk))
 
-            if relevant:
-                zk = {k: self.model.NewBoolVar(f"z_{set_id}_{k}") for k in range(n_members + 1)}
-                self.z[set_id] = zk
-                self.model.Add(sum(zk.values()) == 1)
-                self.model.Add(n_s == sum(k * zk[k] for k in zk))
-                if count_panoplies:
-                    # bonus active <=> at least 2 pieces <=> a tier k>=2 is chosen
-                    active_terms.append(sum(zk[k] for k in zk if k >= 2))
-            elif count_panoplies:
-                # lightweight activation bool for a set whose stats we don't model
-                active = self.model.NewBoolVar(f"act_{set_id}")
-                self.model.Add(n_s >= 2).OnlyEnforceIf(active)
-                self.model.Add(n_s <= 1).OnlyEnforceIf(active.Not())
-                active_terms.append(active)
+            if count_panoplies:
+                # a set at k pieces contributes (k-1) "bonus de panoplie" (each tier
+                # from 2..k counts): 2 pieces -> +1, 3 pieces -> +2, etc.
+                count_terms.append(sum((k - 1) * zk[k] for k in zk if k >= 2))
 
-        if active_terms:
-            self._nb_panoplies_expr = cp_model.LinearExpr.Sum(active_terms)
+        if count_terms:
+            self._nb_panoplies_expr = cp_model.LinearExpr.Sum(count_terms)
 
     def _set_bonus(self, set_id: int, k: int, dim: str) -> int:
         return self.sets[set_id].bonuses.get(k, {}).get(dim, 0)

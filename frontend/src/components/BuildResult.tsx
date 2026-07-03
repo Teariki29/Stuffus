@@ -25,6 +25,7 @@ function formatCondition(node?: ConditionNode | null): string {
 interface Props {
   result: BuildResponse;
   shareUrl: string | null;
+  onBan: (item: ResultItem) => void;
 }
 
 const STATUS_LABEL: Record<string, string> = {
@@ -49,7 +50,7 @@ const RIGHT_COL: { slot: string; ring?: number }[] = [
   { slot: "anneau", ring: 1 },
 ];
 
-export function BuildResult({ result, shareUrl }: Props) {
+export function BuildResult({ result, shareUrl, onBan }: Props) {
   if (
     result.status === "INFEASIBLE" ||
     result.status === "UNKNOWN" ||
@@ -141,7 +142,7 @@ export function BuildResult({ result, shareUrl }: Props) {
           <div className="equip-columns">
             <div className="equip-side">
               {LEFT_COL.map((s, i) => (
-                <SlotCell key={i} item={slotItem(s.slot, s.ring)} place="right" />
+                <SlotCell key={i} item={slotItem(s.slot, s.ring)} place="right" onBan={onBan} />
               ))}
             </div>
             <div className="equip-mannequin">
@@ -172,13 +173,13 @@ export function BuildResult({ result, shareUrl }: Props) {
             </div>
             <div className="equip-side">
               {RIGHT_COL.map((s, i) => (
-                <SlotCell key={i} item={slotItem(s.slot, s.ring)} place="left" />
+                <SlotCell key={i} item={slotItem(s.slot, s.ring)} place="left" onBan={onBan} />
               ))}
             </div>
           </div>
           <div className="equip-pool">
             {Array.from({ length: 6 }).map((_, i) => (
-              <SlotCell key={i} item={pool[i]} small place="up" />
+              <SlotCell key={i} item={pool[i]} small place="up" onBan={onBan} />
             ))}
           </div>
         </div>
@@ -257,16 +258,28 @@ function SlotCell({
   item,
   small,
   place = "up",
+  onBan,
 }: {
   item?: ResultItem;
   small?: boolean;
   place?: "left" | "right" | "up";
+  onBan?: (item: ResultItem) => void;
 }) {
   if (!item) return <div className={`slot ${small ? "sm" : ""} empty`} />;
   const stats = Object.entries(item.stats).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]));
   const condText = formatCondition(item.conditions);
+  const banned = item;
   return (
     <div className={`slot ${small ? "sm" : ""}`}>
+      {onBan && (
+        <button
+          className="btn-ban"
+          title="Bannir cet item et relancer sans lui"
+          onClick={() => onBan(banned)}
+        >
+          ✕
+        </button>
+      )}
       {item.img_url ? <img src={item.img_url} alt={item.name} loading="lazy" /> : null}
       <span className="slot-name">{item.name}</span>
       <div className={`slot-tooltip tt-${place}`}>

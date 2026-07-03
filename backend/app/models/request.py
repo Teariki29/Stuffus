@@ -36,6 +36,7 @@ class OptimizeRequest(BaseModel):
     tiebreak_weights: dict[str, int] = Field(default_factory=dict)
     allocate_points: bool = True
     obtainable_only: bool = True
+    banned_ids: list[int] = Field(default_factory=list)
     time_limit: float = Field(default=15.0, ge=1.0, le=60.0)
 
     @model_validator(mode="after")

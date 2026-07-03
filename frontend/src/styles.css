@@ -659,6 +659,86 @@ img.stat-icon-img {
   color: var(--accent);
 }
 
+/* ban button on a slot */
+.btn-ban {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: #2a1c1c;
+  color: var(--danger);
+  font-size: 0.7rem;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 20;
+  opacity: 0;
+  transition: opacity 0.12s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.slot:hover .btn-ban {
+  opacity: 1;
+}
+.btn-ban:hover {
+  background: var(--danger);
+  color: #fff;
+  border-color: var(--danger);
+}
+
+/* banned items panel */
+.banned-panel {
+  margin-top: 16px;
+}
+.banned-list {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.banned-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.banned-list img,
+.banned-noimg {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: var(--panel-2);
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.banned-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.btn-unban {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--accent-2);
+  border-radius: 8px;
+  width: 30px;
+  height: 28px;
+  cursor: pointer;
+  flex-shrink: 0;
+  font-size: 1rem;
+}
+.btn-unban:hover {
+  border-color: var(--accent-2);
+}
+
 .app-footer {
   margin-top: 40px;
   padding-top: 16px;

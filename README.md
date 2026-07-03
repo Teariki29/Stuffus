@@ -92,6 +92,7 @@ cd backend
   "level": 200,
   "damage_profile": "generique",    // generique|melee|distance|sorts|armes
   "obtainable_only": true,          // exclut le matériel non obtenable (cf §limites)
+  "banned_ids": [17997],            // items exclus du pool (bannis par l'utilisateur)
   "constraints": [
     { "dim": "pa", "op": ">=", "value": 11 },
     { "dim": "pm", "op": ">=", "value": 6 }
@@ -148,8 +149,9 @@ backend/app/
 - **Conditions d'items** : les conditions *déterminées par le build* sont
   appliquées dans le solveur (indicatrices) — caractéristiques (Force, Vita,
   Sagesse, Chance, Agi, Intel), **PA, PM, Portée, Puissance**, et le **nombre de
-  bonus de panoplie** (ex. trophées « < 3 bonus de panoplie », modélisé en
-  comptant les panoplies actives ≥ 2 pièces), en AND/OR. Les conditions sont lues
+  bonus de panoplie** (ex. trophées « < 3 bonus de panoplie » : une panoplie à
+  *k* pièces compte **(k-1)** bonus — 2 pièces → +1, 3 pièces → +2 — et on somme
+  sur toutes les panoplies actives), en AND/OR. Les conditions sont lues
   depuis l'arbre **structuré de dofusdude** (mappé par *nom* d'élément), bien plus
   fiable que les codes 2-lettres bruts de DofusDB (qui cachaient un piège :
   `CS` = Force, pas Sagesse). Les conditions liées à l'**état externe du joueur**

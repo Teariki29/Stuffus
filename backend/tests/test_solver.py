@@ -78,6 +78,28 @@ def test_panoplie_count_condition():
     assert res.active_sets == []  # ...but only if no set bonus is active
 
 
+def test_panoplie_count_tiers():
+    """A k-piece set counts (k-1) bonuses: a trophy needing '< 2' caps the set at 2 pieces."""
+    from app.data.repository import SetDef
+
+    a = Item(1, "S1", "amulette", "Amulette", 1, 9, False, True, {"force": 30}, None, None, None)
+    b = Item(2, "S2", "cape", "Cape", 1, 9, False, True, {"force": 30}, None, None, None)
+    c = Item(3, "S3", "ceinture", "Ceinture", 1, 9, False, True, {"force": 30}, None, None, None)
+    sets = {9: SetDef(9, "ThreeSet", [1, 2, 3], {2: {"force": 0}, 3: {"force": 0}})}
+    trophy = Item(
+        4, "BigTrophy", "trophee", "Trophée", 1, None, False, True,
+        {"force": 1000}, {"op": "cmp", "dim": "nb_panoplies", "operator": "<", "value": 2},
+        None, None,
+    )
+    obj = ObjectiveSpec("damage", [("force", "do_terre")])
+    res = solve([a, b, c, trophy], sets, BuildParams(objective=obj, level=200, allocate_points=False))
+    assert res.status == "OPTIMAL"
+    assert 4 in res.item_ids  # the strong trophy is taken
+    # count must stay < 2, i.e. the 3-piece set is capped at 2 pieces (count 1)
+    set_pieces = sum(1 for i in (1, 2, 3) if i in res.item_ids)
+    assert set_pieces == 2
+
+
 def test_or_condition():
     # needs force>=999999 OR intelligence>=0  -> the OR is satisfiable
     a = _amulette(1, "OrLocked", {"intelligence": 1000},
